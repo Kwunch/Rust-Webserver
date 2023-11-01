@@ -86,6 +86,13 @@ fn handle_request(p0: TcpStream) -> Result<(), Box<dyn Error>> {
     // Get File Path From Request
     let file = request.split_whitespace().nth(1).unwrap();
 
+    // File Not Found.. Send 404 and Exit
+    if !std::path::Path::new(&file[1..]).exists() {
+        let mut stream = BufWriter::new(stream.into_inner());
+        stream.write_all(b"HTTP/1.1 404 Not Found\r\n\r\n")?;
+        return Ok(());
+    }
+    
     // Create Path to Get File Name
     let path = std::path::Path::new(&file[1..]);
     let file_name = path.file_name().unwrap().to_str().unwrap();
